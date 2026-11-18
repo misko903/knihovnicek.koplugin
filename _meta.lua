@@ -4,5 +4,5 @@ return {
     fullname = _("Knihovníček"),
     description = _([[Borrow e-books from Czech and Slovak libraries that lend through Palmknihy, download them to the reader and delete expired loans.]]),
     -- the release workflow stamps the release tag here
-    version = "0.0.0",
+    version = "0.2.0",
 }

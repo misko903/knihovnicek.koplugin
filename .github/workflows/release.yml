@@ -18,7 +18,7 @@ jobs:
           lua5.1 tests/run.lua
       - name: Stamp the release tag into _meta.lua
         run: |
-          sed -i "s/version = \"0.0.0\"/version = \"${GITHUB_REF_NAME#v}\"/" _meta.lua
+          sed -i -E "s/version = \"[^\"]*\"/version = \"${GITHUB_REF_NAME#v}\"/" _meta.lua
           grep -n 'version =' _meta.lua
       - name: Build zip with the knihovnicek.koplugin folder
         run: |
