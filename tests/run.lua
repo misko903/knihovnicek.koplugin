@@ -114,6 +114,26 @@ eq(k:borrow(5), true, "borrow")
 eq(Palm.authors({ persons = { { type = "author", author = { firstname = "Mark", surname = "Aldridge" } },
     { type = "translator", author = { firstname = "X", surname = "Y" } } } }), "Mark Aldridge", "authors")
 
+-- updates
+local Update = require("nk_update")
+eq(Update.isNewer("v1.2.0", "1.1.9"), true, "newer minor")
+eq(Update.isNewer("1.10", "1.9.5"), true, "numeric compare")
+eq(Update.isNewer("1.0.0", "1.0"), false, "equal")
+eq(Update.isNewer("0.9", "1.0"), false, "older")
+eq(Update.isNewer("1.0", "0.0.0"), true, "from dev stamp")
+eq(Update.isNewer("nightly", "1.0"), false, "junk tag")
+eq(Update.targetPath("knihovnicek.koplugin/main.lua"), "main.lua", "zip main")
+eq(Update.targetPath("knihovnicek.koplugin/tests/run.lua"), nil, "zip skips tests")
+eq(Update.targetPath("knihovnicek.koplugin/../evil.lua"), nil, "zip traversal")
+eq(Update.targetPath("knihovnicek.koplugin/"), nil, "zip dir")
+local rel = Update.parseRelease({ tag_name = "v1.4.0", assets = {
+    { name = "other.zip", browser_download_url = "u0" },
+    { name = "knihovnicek.koplugin.zip", browser_download_url = "https://dl/z" } } })
+eq(rel.version, "1.4.0", "release version")
+eq(rel.url, "https://dl/z", "release asset")
+eq(Update.parseRelease({ tag_name = "v2", assets = {} }).url, nil, "release without asset")
+eq(Update.parseRelease({}), nil, "invalid release")
+
 if failed == 0 then
     print("all tests passed")
 else

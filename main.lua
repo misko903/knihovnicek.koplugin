@@ -6,6 +6,7 @@ Standalone: it talks to Palmknihy and the library catalogue directly.
 
 local DataStorage = require("datastorage")
 local Device = require("device")
+local Dispatcher = require("dispatcher")
 local ButtonDialog = require("ui/widget/buttondialog")
 local ConfirmBox = require("ui/widget/confirmbox")
 local InfoMessage = require("ui/widget/infomessage")
@@ -20,6 +21,7 @@ local lfs = require("libs/libkoreader-lfs")
 local Katalog = require("nk_katalog")
 local L = require("nk_i18n").T
 local Palm = require("nk_palmknihy")
+local Update = require("nk_update")
 local Util = require("nk_util")
 
 local Screen = Device.screen
@@ -45,7 +47,9 @@ function Knihovnicek:init()
     else
         self.settings = LuaSettings:open(path)
     end
+    self:onDispatcherRegisterActions()
     self.ui.menu:registerToMainMenu(self)
+    self:scheduleUpdateCheck()
 end
 
 function Knihovnicek:get(key, default)
@@ -566,6 +570,106 @@ function Knihovnicek:borrow(result)
     end)
 end
 
+-- --- updates ------------------------------------------------------------------
+
+local UPDATE_INTERVAL = 24 * 3600
+local update_checked = false -- once per KOReader session
+
+function Knihovnicek:pluginDir()
+    if self.path then
+        return self.path
+    end
+    return (debug.getinfo(1, "S").source:match("^@(.*)/main%.lua$")) or "."
+end
+
+--- Version of the files on disk (they change right after an update).
+function Knihovnicek:installedVersion()
+    local ok, meta = pcall(dofile, self:pluginDir() .. "/_meta.lua")
+    return ok and type(meta) == "table" and meta.version or "0.0.0"
+end
+
+--- Check for a newer release once a day (only when already online, so it
+--- never wakes the Wi-Fi) and ask before installing.
+function Knihovnicek:scheduleUpdateCheck()
+    if update_checked or not self:get("auto_update", true) then
+        return
+    end
+    update_checked = true
+    if os.time() - self:get("update_checked", 0) < UPDATE_INTERVAL then
+        return
+    end
+    UIManager:scheduleIn(10, function()
+        if NetworkMgr:isConnected() then
+            self:checkUpdate(true)
+        end
+    end)
+end
+
+--- silent: no messages unless a newer version is found.
+function Knihovnicek:checkUpdate(silent)
+    local function fetch()
+        local release, err = Update.latest()
+        self:set("update_checked", os.time())
+        return release, err
+    end
+    local function handle(release, err)
+        if not release then
+            if not silent then
+                self:showMessage(errorText(err))
+            end
+            return
+        end
+        local current = self:installedVersion()
+        if not Update.isNewer(release.version, current) then
+            if not silent then
+                self:showMessage(L("up_to_date", current))
+            end
+            return
+        end
+        if not release.url then
+            if not silent then
+                self:showMessage(L("update_no_file", release.version))
+            end
+            return
+        end
+        UIManager:show(ConfirmBox:new{
+            text = L("update_available", release.version, current),
+            ok_text = L("update_install"),
+            cancel_text = L("later"),
+            ok_callback = function()
+                self:installUpdate(release)
+            end,
+        })
+    end
+    if silent then
+        local ok, release, err = pcall(fetch)
+        if ok then
+            handle(release, err)
+        end
+    else
+        self:work(L("update_checking"), fetch, handle)
+    end
+end
+
+function Knihovnicek:installUpdate(release)
+    self:work(L("update_installing"), function()
+        return Update.install(release.url, self:pluginDir())
+    end, function(ok, err)
+        if not ok then
+            self:showMessage(errorText(err))
+            return
+        end
+        UIManager:show(ConfirmBox:new{
+            text = L("update_done", release.version),
+            ok_text = L("restart"),
+            cancel_text = L("later"),
+            ok_callback = function()
+                UIManager:restartKOReader()
+            end,
+        })
+    end)
+end
+
 -- --- menu ---------------------------------------------------------------------
 
 local function secret(value)
@@ -650,8 +754,43 @@ function Knihovnicek:settingsItems()
                 })
             end,
         },
+        {
+            text = L("auto_updates"),
+            checked_func = function()
+                return self:get("auto_update", true)
+            end,
+            callback = function()
+                self:set("auto_update", not self:get("auto_update", true))
+            end,
+        },
     }
 end
+
+-- --- gesture / profile actions ------------------------------------------------
+
+local ACTIONS = {
+    { id = "knihovnicek_loans", event = "KnihovnicekLoans", text = "my_loans" },
+    { id = "knihovnicek_download", event = "KnihovnicekDownload", text = "download_new" },
+    { id = "knihovnicek_clean", event = "KnihovnicekClean", text = "clean_expired" },
+    { id = "knihovnicek_search", event = "KnihovnicekSearch", text = "search" },
+}
+
+--- Make the actions assignable to gestures, profiles and the quick menu.
+function Knihovnicek:onDispatcherRegisterActions()
+    for _i, action in ipairs(ACTIONS) do
+        Dispatcher:registerAction(action.id, {
+            category = "none",
+            event = action.event,
+            title = L("title") .. ": " .. L(action.text),
+            general = true,
+        })
+    end
+end
+
+function Knihovnicek:onKnihovnicekLoans() self:openLoans() return true end
+function Knihovnicek:onKnihovnicekDownload() self:downloadNew() return true end
+function Knihovnicek:onKnihovnicekClean() self:cleanExpired() return true end
+function Knihovnicek:onKnihovnicekSearch() self:searchDialog() return true end
 
 function Knihovnicek:addToMainMenu(menu_items)
     menu_items.knihovnicek = {
@@ -662,6 +801,7 @@ function Knihovnicek:addToMainMenu(menu_items)
             { text = L("download_new"), callback = function() self:downloadNew() end },
             { text = L("clean_expired"), callback = function() self:cleanExpired() end },
             { text = L("search"), callback = function() self:searchDialog() end },
+            { text = L("check_updates"), callback = function() self:checkUpdate(false) end },
             { text = L("settings"), sub_item_table = self:settingsItems() },
         },
     }

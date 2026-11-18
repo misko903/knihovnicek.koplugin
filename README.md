@@ -24,6 +24,13 @@ Rozhranie je v slovenčine, češtine a angličtine podľa jazyka KOReaderu.
 2. Reštartujte KOReader. Plugin sa objaví v hornom menu
    (ikona ozubeného kolesa → **Nástroje** → **Knihovníček**).
 
+## Aktualizácie
+
+Plugin sa vie aktualizovať sám z najnovšieho vydania na GitHube: **Knihovníček →
+Skontrolovať aktualizácie**. Raz denne (len keď je čítačka už online) ho
+skontroluje aj automaticky; vypnete to v **Nastavenia → Kontrolovať aktualizácie
+automaticky**. Pred inštaláciou sa vždy pýta; po aktualizácii treba reštartovať KOReader.
+
 ## Nastavenie
 
 V menu **Knihovníček → Nastavenia** zadajte:
