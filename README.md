@@ -9,7 +9,9 @@ komunikuje priamo z čítačky.
 - **Moje výpožičky** – zoznam aktuálnych výpožičiek z Palmknihy (s dátumom
   vypršania); ťuknutím knihu stiahnete, otvoríte alebo zmažete,
 - **Stiahnuť nové výpožičky** – stiahne všetky e-knihy, ktoré ešte nemáte,
-- **Zmazať prepadnuté knihy** – zmaže súbory výpožičiek, ktorým skončila lehota,
+- **Zmazať prepadnuté knihy** – zmaže súbory výpožičiek, ktorým skončila lehota
+  (po zapnutí **Nastavenia → Mazať prepadnuté knihy automaticky** to robí sám
+  vždy, keď sa otvorí prehliadač súborov),
 - **Hľadať v katalógu knižnice** – vyhľadá e-knihy (podľa názvu aj autora)
   v katalógu katalog.tsk.sk a jedným ťuknutím ich vypožičia.
 
@@ -26,8 +28,8 @@ Rozhranie je v slovenčine, češtine a angličtine podľa jazyka KOReaderu.
 
 ## Aktualizácie
 
-Plugin sa vie aktualizovať sám z najnovšieho vydania na GitHube: **Knihovníček →
-Skontrolovať aktualizácie**. Raz denne (len keď je čítačka už online) ho
+Plugin sa vie aktualizovať sám z najnovšieho vydania na GitHube: ťuknite na **Knihovníček →
+Nainštalovaná verzia**. Raz denne (len keď je čítačka už online) ho
 skontroluje aj automaticky; vypnete to v **Nastavenia → Kontrolovať aktualizácie
 automaticky**. Pred inštaláciou sa vždy pýta; po aktualizácii treba reštartovať KOReader.
 

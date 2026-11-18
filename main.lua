@@ -50,6 +50,7 @@ function Knihovnicek:init()
     self:onDispatcherRegisterActions()
     self.ui.menu:registerToMainMenu(self)
     self:scheduleUpdateCheck()
+    self:scheduleAutoClean()
 end
 
 function Knihovnicek:get(key, default)
@@ -179,8 +180,16 @@ function Knihovnicek:palm()
     return Palm.new(self:get("email", ""), self:get("password", ""))
 end
 
+function Knihovnicek:hasLogin()
+    return self:get("email", "") ~= "" and self:get("password", "") ~= ""
+end
+
+function Knihovnicek:hasCatLogin()
+    return self:catUser() ~= "" and self:get("cat_pass", "") ~= ""
+end
+
 function Knihovnicek:requireLogin()
-    if self:get("email", "") == "" or self:get("password", "") == "" then
+    if not self:hasLogin() then
         self:showMessage(L("no_login"))
         return false
     end
@@ -376,7 +385,8 @@ function Knihovnicek:deleteBook(book)
 end
 
 --- Delete the files of expired loans and forget them.
-function Knihovnicek:cleanExpired()
+--- silent: no message unless something was deleted.
+function Knihovnicek:cleanExpired(silent)
     local books = self:books()
     local removed = 0
     for key, book in pairs(books) do
@@ -390,7 +400,22 @@ function Knihovnicek:cleanExpired()
     end
     self:saveBooks(books)
     refreshFileManager()
-    self:showMessage(removed > 0 and L("deleted_n", removed) or L("nothing_expired"))
+    if removed > 0 then
+        self:showMessage(L("deleted_n", removed))
+    elseif not silent then
+        self:showMessage(L("nothing_expired"))
+    end
+end
+
+--- Delete expired loans on its own when the file browser opens (not in the
+--- reader, so the book that is open is never deleted under it).
+function Knihovnicek:scheduleAutoClean()
+    if self.ui.document or not self:get("auto_clean", false) then
+        return
+    end
+    UIManager:scheduleIn(2, function()
+        self:cleanExpired(true)
+    end)
 end
 
 function Knihovnicek:booksToDownload()
@@ -542,7 +567,7 @@ function Knihovnicek:confirmBorrow(result)
         self:showMessage(L("cannot_borrow"))
         return
     end
-    if self:catUser() == "" or self:get("cat_pass", "") == "" then
+    if not self:hasCatLogin() then
         self:showMessage(L("no_cat_login"))
         return
     end
@@ -672,6 +697,26 @@ end
 
 -- --- menu ---------------------------------------------------------------------
 
+--- Menu icons: Font Awesome glyphs from the Nerd Fonts symbols font that
+--- KOReader ships as a fallback font.
+local ICON = {
+    loans = "\u{F02D}",    -- book
+    download = "\u{F019}", -- download
+    clean = "\u{F1F8}",    -- trash
+    search = "\u{F002}",   -- magnifier
+    settings = "\u{F013}", -- cog
+    version = "\u{F021}",  -- refresh
+    email = "\u{F0E0}",    -- envelope
+    password = "\u{F084}", -- key
+    library = "\u{F19C}",  -- institution
+    cat_pass = "\u{F2C2}", -- id card
+    folder = "\u{F07B}",   -- folder
+}
+
+local function withIcon(name, text)
+    return ICON[name] .. "  " .. text
+end
+
 local function secret(value)
     return (value and value ~= "") and "●●●●" or L("unset")
 end
@@ -680,7 +725,7 @@ function Knihovnicek:textSetting(key, label, is_password)
     return {
         text_func = function()
             local value = self:get(key, "")
-            return label .. ": " .. (is_password and secret(value)
+            return withIcon(key, label) .. ": " .. (is_password and secret(value)
                 or (value ~= "" and value or L("unset")))
         end,
         keep_menu_open = true,
@@ -725,17 +770,17 @@ function Knihovnicek:settingsItems()
                 local code = self:get("library", "vkmr")
                 for _i, lib in ipairs(Katalog.LIBRARIES) do
                     if lib[1] == code then
-                        return L("library") .. ": " .. lib[2]
+                        return withIcon("library", L("library")) .. ": " .. lib[2]
                     end
                 end
-                return L("library") .. ": " .. code
+                return withIcon("library", L("library")) .. ": " .. code
             end,
             sub_item_table = self:libraryItems(),
         },
         self:textSetting("cat_pass", L("cat_pass"), true),
         {
             text_func = function()
-                return L("folder") .. ": " .. self:downloadDir()
+                return withIcon("folder", L("folder")) .. ": " .. self:downloadDir()
             end,
             keep_menu_open = true,
             callback = function(touchmenu_instance)
@@ -761,6 +806,15 @@ function Knihovnicek:settingsItems()
             end,
             callback = function()
                 self:set("auto_update", not self:get("auto_update", true))
+            end,
+        },
+        {
+            text = L("auto_clean"),
+            checked_func = function()
+                return self:get("auto_clean", false)
+            end,
+            callback = function()
+                self:set("auto_clean", not self:get("auto_clean", false))
             end,
         },
     }
@@ -793,20 +847,27 @@ function Knihovnicek:onKnihovnicekClean() self:cleanExpired() return true end
 function Knihovnicek:onKnihovnicekSearch() self:searchDialog() return true end
 
 function Knihovnicek:addToMainMenu(menu_items)
+    local function hasLogin() return self:hasLogin() end
+    local function hasCatLogin() return self:hasCatLogin() end
     menu_items.knihovnicek = {
         text = L("title"),
         sorting_hint = "tools",
         sub_item_table = {
-            { text = L("my_loans"), callback = function() self:openLoans() end },
-            { text = L("download_new"), callback = function() self:downloadNew() end },
-            { text = L("clean_expired"), callback = function() self:cleanExpired() end },
-            { text = L("search"), callback = function() self:searchDialog() end },
-            { text = L("check_updates"), callback = function() self:checkUpdate(false) end },
-            { text = L("settings"), sub_item_table = self:settingsItems() },
+            { text = withIcon("loans", L("my_loans")), enabled_func = hasLogin,
+                callback = function() self:openLoans() end },
+            { text = withIcon("download", L("download_new")), enabled_func = hasLogin,
+                callback = function() self:downloadNew() end },
+            { text = withIcon("clean", L("clean_expired")), enabled_func = hasLogin,
+                callback = function() self:cleanExpired() end },
+            { text = withIcon("search", L("search")), enabled_func = hasCatLogin,
+                callback = function() self:searchDialog() end },
+            { text = withIcon("settings", L("settings")), sub_item_table = self:settingsItems() },
             {
-                text_func = function() return L("installed_version", self:installedVersion()) end,
-                enabled_func = function() return false end,
-                callback = function() end,
+                -- tapping the version checks for updates
+                text_func = function()
+                    return withIcon("version", L("installed_version", self:installedVersion()))
+                end,
+                callback = function() self:checkUpdate(false) end,
             },
         },
     }
