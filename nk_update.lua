@@ -4,7 +4,7 @@ local Http = require("nk_http")
 
 local Update = {}
 
-Update.API = "https://api.github.com/repos/misko903/neknihy/releases/latest"
+Update.API = "https://api.github.com/repos/misko903/knihovnicek.koplugin/releases/latest"
 Update.ASSET = "knihovnicek.koplugin.zip"
 
 --- "v1.2.3" / "1.2" -> {1, 2, 3}; nil when there is no number in it.
