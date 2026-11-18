@@ -803,6 +803,11 @@ function Knihovnicek:addToMainMenu(menu_items)
             { text = L("search"), callback = function() self:searchDialog() end },
             { text = L("check_updates"), callback = function() self:checkUpdate(false) end },
             { text = L("settings"), sub_item_table = self:settingsItems() },
+            {
+                text_func = function() return L("installed_version", self:installedVersion()) end,
+                enabled_func = function() return false end,
+                callback = function() end,
+            },
         },
     }
 end
