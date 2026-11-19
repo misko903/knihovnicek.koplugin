@@ -2,7 +2,7 @@
 
 [Slovensky](README.md) · **Česky** · [English](README.en.md)
 
-### 📚 Čtečka + knihovna = e-knihy zdarma. Funguje se slovenskými i českými knihovnami!
+### 📚 Knihovní e-knihy přímo ve čtečce. Funguje se slovenskými i českými knihovnami!
 
 Půjčujte si e-knihy ze **slovenských a českých knihoven** (přes Palmknihy)
 a mějte je ve čtečce na jedno ťuknutí – bez počítače, bez kabelu, bez
