@@ -1,4 +1,5 @@
 # Knihovníček pre KOReader
+n**Slovensky** · [Česky](README.cs.md) · [English](README.en.md)
 
 ### 📚 Čítačka + knižnica = e-knihy zadarmo. Funguje so slovenskými aj českými knižnicami!
 
