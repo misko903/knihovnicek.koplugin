@@ -2,7 +2,7 @@
 
 [Slovensky](README.md) · [Česky](README.cs.md) · **English**
 
-### 📚 E-reader + library = free e-books. Works with Slovak and Czech libraries!
+### 📚 Library e-books right on your e-reader. Works with Slovak and Czech libraries!
 
 Borrow e-books from **Slovak and Czech libraries** (via Palmknihy) and have
 them on your e-reader with a single tap – no computer, no cable, no copying
