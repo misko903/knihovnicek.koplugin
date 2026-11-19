@@ -2,7 +2,7 @@
 
 **Slovensky** · [Česky](README.cs.md) · [English](README.en.md)
 
-### 📚 Knižničné e-knihy priamo v čítačke. Funguje so slovenskými aj českými knižnicami!
+### 📚 Požičiavajte si e-knihy z knižnice rovno v čítačke. Funguje so slovenskými aj českými knižnicami!
 
 Požičiavajte si e-knihy z **slovenských a českých knižníc** (cez Palmknihy)
 a majte ich v čítačke na jedno ťuknutie – bez počítača, bez kábla, bez
