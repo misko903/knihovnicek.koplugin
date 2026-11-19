@@ -4,7 +4,7 @@ local Util = require("nk_util")
 
 local Http = {}
 
-Http.USER_AGENT = "Knihovnicek-KOReader (+https://github.com/misko903/neknihy)"
+Http.USER_AGENT = "Knihovnicek-KOReader (+https://github.com/misko903/knihovnicek.koplugin)"
 -- Tests replace this: function(reqt) -> ok, code, headers, status
 Http.transport = nil
 

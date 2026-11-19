@@ -1,8 +1,8 @@
 # Knihovníček pre KOReader
 
 Knihovníček je samostatný plugin pre [KOReader](https://koreader.rocks/). Nepotrebuje
-server ani desktopovú aplikáciu [Neknihy NextGen](https://github.com/misko903/neknihy): s Palmknihy a katalógom knižnice
-komunikuje priamo z čítačky.
+žiadny server ani počítač: s Palmknihy a katalógom knižnice komunikuje priamo
+z čítačky.
 
 Čo vie:
 
@@ -49,14 +49,15 @@ ako obyčajný text.
 
 ## Obmedzenia
 
-Oproti aplikácii [Neknihy NextGen](https://github.com/misko903/neknihy) plugin zatiaľ:
+Plugin zatiaľ:
 
 - pracuje len s e-knihami (audioknihy KOReader neprehráva),
 - z EPUB neodstraňuje stranu so sociálnym DRM,
 - hľadá a požičiava len v katalógoch na katalog.tsk.sk (nie v Mestskej
-  knižnici v Bratislave),
-- aktívnu výpožičku, ktorej súbor zmažete, skryje až do vypršania lehoty
-  (rovnako ako aplikácia), takže sa už nesťahuje znova.
+  knižnici v Bratislave).
+
+Aktívnu výpožičku, ktorej súbor zmažete, plugin skryje až do vypršania lehoty,
+takže sa už nesťahuje znova.
 
 ## Vývoj
 
