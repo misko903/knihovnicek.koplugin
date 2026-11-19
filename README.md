@@ -1,5 +1,12 @@
 # Knihovníček pre KOReader
 
+### 📚 Čítačka + knižnica = e-knihy zadarmo. Funguje so slovenskými aj českými knižnicami!
+
+Požičiavajte si e-knihy z **slovenských a českých knižníc** (cez Palmknihy)
+a majte ich v čítačke na jedno ťuknutie – bez počítača, bez kábla, bez
+preposielania súborov. Výpožičky sa stiahnu rovno do KOReaderu a po vypršaní
+lehoty sa samy upratajú.
+
 Knihovníček je samostatný plugin pre [KOReader](https://koreader.rocks/). Nepotrebuje
 žiadny server ani počítač: s Palmknihy a katalógom knižnice komunikuje priamo
 z čítačky.
@@ -16,6 +23,13 @@ z čítačky.
   v katalógu katalog.tsk.sk a jedným ťuknutím ich vypožičia.
 
 Rozhranie je v slovenčine, češtine a angličtine podľa jazyka KOReaderu.
+
+## Pôvod a poďakovanie
+
+Pôvodný projekt [Neknihy](https://github.com/thalman/neknihy), z ktorého
+vychádza komunikácia s Palmknihy, vytvoril **Tomáš Halman** ([@thalman](https://github.com/thalman)).
+Tento plugin vznikol ako súčasť forku [Neknihy NextGen](https://github.com/misko903/neknihy)
+(autor forku: misko903).
 
 ## Inštalácia
 
@@ -42,10 +56,19 @@ V menu **Knihovníček → Nastavenia** zadajte:
 | E-mail / heslo Palmknihy | prihlásenie do účtu Palmknihy (potrebné pre výpožičky a sťahovanie) |
 | Priečinok pre stiahnuté knihy | predvolene `Knihovnicek` v domovskom priečinku KOReaderu |
 | Knižnica | katalóg, v ktorom sa hľadá a požičiava (predvolene VKMR v Trenčíne) |
-| Meno / heslo do katalógu | prihlásenie do katalógu knižnice (potrebné len na požičiavanie) |
+| Heslo do katalógu | heslo do katalógu knižnice (potrebné na vyhľadávanie a požičiavanie); prihlasovacie meno sa preberá z e-mailu Palmknihy, preto musí byť e-mail v knižnici a v Palmknihy rovnaký |
+
+> **Dôležité:** bez zadaného hesla do katalógu knižnice plugin
+> nevie vyhľadávať knihy. Na sťahovanie už vypožičaných kníh stačí
+> prihlásenie do Palmknihy, tie fungujú aj bez prihlásenia do katalógu.
 
 Údaje sa ukladajú v súbore `knihovnicek.lua` v priečinku nastavení KOReaderu
 ako obyčajný text.
+
+## Ako sa požičiavajú e-knihy
+
+Návod na registráciu a požičiavanie e-kníh (vrátane prepojenia
+knižničného účtu s Palmknihy) nájdete na webovej stránke vašej knižnice.
 
 ## Obmedzenia
 
